@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+venv/
+node_modules/
+*.pt
+*.h5
+*.pkl
+*.log
+.DS_Store
+.ipynb_checkpoints/
