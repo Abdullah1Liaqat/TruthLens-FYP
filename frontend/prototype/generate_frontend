@@ -1,0 +1,180 @@
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+
+function Navbar() {
+  return (
+    <motion.nav
+      initial={{ y: -60, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6 }}
+      className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white px-8 py-5 flex justify-between items-center shadow-2xl rounded-b-2xl"
+    >
+      <h1 className="text-xl font-bold">TruthLens</h1>
+      <div className="space-x-4">
+        <Link to="/" className="hover:text-blue-400">Home</Link>
+        <Link to="/analyze" className="hover:text-blue-400">Analyze</Link>
+        <Link to="/explain" className="hover:text-blue-400">Explainability</Link>
+        <Link to="/metrics" className="hover:text-blue-400">Evaluation Dashboard</Link>
+        <Link to="/about" className="hover:text-blue-400">About</Link>
+      </div>
+    </motion.nav>
+  );
+}
+
+function Home() {
+  return (
+    <div className="p-16 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <motion.div initial={{ x: -80, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.7 }}>
+        <h2 className="text-5xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600">
+          Detect Fake News with Confidence
+        </h2>
+        <p className="text-gray-600 mb-8 text-lg leading-relaxed">
+          TruthLens uses advanced transformer-based AI to classify news articles and visually explain why a prediction was made.
+        </p>
+        <Link to="/analyze" className="bg-blue-600 hover:bg-blue-700 transition text-white px-8 py-4 rounded-2xl shadow-xl text-lg">
+          Start Analysis
+        </Link>
+      </motion.div>
+
+      <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.8 }} className="flex justify-center">
+        <img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="AI Avatar" className="w-80 drop-shadow-2xl" />
+      </motion.div>
+    </div>
+  );
+}
+
+function Analyze() {
+  return (
+    <div className="p-10 max-w-3xl mx-auto">
+      <h2 className="text-3xl font-bold mb-4">Analyze News Article</h2>
+      <textarea
+        className="w-full border rounded-xl p-4 h-40"
+        placeholder="Paste news text here..."
+      />
+      <button className="mt-4 bg-green-600 text-white px-6 py-2 rounded-xl">
+        Analyze
+      </button>
+      <div className="mt-6 p-4 border rounded-xl">
+        <p className="font-semibold">Prediction:</p>
+        <p className="text-red-600 font-bold text-xl">Fake News</p>
+        <p className="mt-2 text-sm text-gray-500">
+          Confidence Level: <span className="font-semibold">0.82</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Explain() {
+  const [mode, setMode] = useState("lime");
+
+  return (
+    <div className="p-10 max-w-4xl mx-auto">
+      <h2 className="text-3xl font-bold mb-4">
+        Explainability ({mode === "lime" ? "LIME" : "SHAP"})
+      </h2>
+
+      {mode === "lime" ? (
+        <>
+          <p className="leading-8">
+            <span className="bg-red-200">Breaking</span> news claims that
+            <span className="bg-red-200"> secret </span> attacks were planned by
+            <span className="bg-green-200"> officials </span> according to
+            <span className="bg-green-200"> verified </span> sources.
+          </p>
+          <p className="text-sm text-gray-500 mt-4">
+            Red highlights indicate words contributing to fake prediction.
+          </p>
+          <button
+            onClick={() => setMode("shap")}
+            className="mt-6 bg-purple-600 text-white px-6 py-2 rounded-xl shadow"
+          >
+            Generate SHAP Explanation
+          </button>
+        </>
+      ) : (
+        <>
+          <div className="bg-gray-100 p-6 rounded-xl">
+            <p className="font-semibold mb-2">SHAP Feature Contributions</p>
+            <ul className="space-y-2">
+              <li className="text-red-600">secret: +0.21</li>
+              <li className="text-red-600">breaking: +0.18</li>
+              <li className="text-green-600">verified: -0.15</li>
+            </ul>
+          </div>
+          <p className="text-sm text-gray-500 mt-4">
+            SHAP shows the magnitude and direction of each word's contribution.
+          </p>
+          <button
+            onClick={() => setMode("lime")}
+            className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-xl shadow"
+          >
+            Back to LIME Explanation
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Metrics() {
+  return (
+    <div className="p-10">
+      <h2 className="text-3xl font-bold mb-6">Evaluation Dashboard</h2>
+
+      <div className="grid grid-cols-3 gap-6 mb-10">
+        <div className="bg-white shadow rounded-2xl p-6">
+          <p className="text-gray-500">Overall Accuracy</p>
+          <p className="text-3xl font-bold">72%</p>
+        </div>
+        <div className="bg-white shadow rounded-2xl p-6">
+          <p className="text-gray-500">Precision</p>
+          <p className="text-3xl font-bold">0.74</p>
+        </div>
+        <div className="bg-white shadow rounded-2xl p-6">
+          <p className="text-gray-500">Recall</p>
+          <p className="text-3xl font-bold">0.70</p>
+        </div>
+      </div>
+
+      <div className="bg-white shadow rounded-2xl p-8">
+        <h3 className="text-xl font-semibold mb-4">Training Performance</h3>
+        <div className="h-48 flex items-center justify-center border rounded-xl text-gray-400">
+          Accuracy / Loss Graph (Epoch vs Performance)
+        </div>
+        <p className="text-sm text-gray-500 mt-4">
+          This graph illustrates how the model's accuracy improves and loss decreases during training,
+          indicating convergence and generalization behavior.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function About() {
+  return (
+    <div className="p-10 max-w-3xl">
+      <h2 className="text-3xl font-bold mb-4">About TruthLens</h2>
+      <p className="text-gray-600">
+        TruthLens is a Final Year Project focused on detecting and explaining misinformation using transformer‑based deep learning models.
+      </p>
+      <p className="mt-4 text-gray-600">Supervisor: ____________________</p>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/analyze" element={<Analyze />} />
+        <Route path="/explain" element={<Explain />} />
+        <Route path="/metrics" element={<Metrics />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </Router>
+  );
+}
