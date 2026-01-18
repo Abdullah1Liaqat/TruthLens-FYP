@@ -45,29 +45,83 @@ function Home() {
 }
 
 function Analyze() {
+  const [text, setText] = useState("");
+  const [prediction, setPrediction] = useState(null);
+  const [confidence, setConfidence] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleAnalyze = async () => {
+    if (!text.trim()) return;
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+      });
+
+      const json = await res.json();
+      setPrediction(json.data.label);
+      setConfidence(json.data.confidence);
+    } catch (err) {
+      console.error(err);
+    }
+
+    setLoading(false);
+  };
+
   return (
     <div className="p-10 max-w-3xl mx-auto">
       <h2 className="text-3xl font-bold mb-4">Analyze News Article</h2>
+
       <textarea
         className="w-full border rounded-xl p-4 h-40"
         placeholder="Paste news text here..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
       />
-      <button className="mt-4 bg-green-600 text-white px-6 py-2 rounded-xl">
-        Analyze
+
+      <button
+        onClick={handleAnalyze}
+        className="mt-4 bg-green-600 text-white px-6 py-2 rounded-xl"
+      >
+        {loading ? "Analyzing..." : "Analyze"}
       </button>
-      <div className="mt-6 p-4 border rounded-xl">
-        <p className="font-semibold">Prediction:</p>
-        <p className="text-red-600 font-bold text-xl">Fake News</p>
-        <p className="mt-2 text-sm text-gray-500">
-          Confidence Level: <span className="font-semibold">0.82</span>
-        </p>
-      </div>
+
+      {prediction && (
+        <div className="mt-6 p-4 border rounded-xl">
+          <p className="font-semibold">Prediction:</p>
+          <p
+            className={`font-bold text-xl ${
+              prediction === "FAKE" ? "text-red-600" : "text-green-600"
+            }`}
+          >
+            {prediction}
+          </p>
+          <p className="mt-2 text-sm text-gray-500">
+            Confidence Level: <span className="font-semibold">{confidence}</span>
+          </p>
+        </div>
+      )}
     </div>
   );
 }
 
+
 function Explain() {
   const [mode, setMode] = useState("lime");
+  const [shapData, setShapData] = useState([]);
+
+  const loadShap = async () => {
+    const res = await fetch("http://localhost:5000/api/shap", {
+      method: "POST"
+    });
+    const json = await res.json();
+    setShapData(json.data);
+    setMode("shap");
+  };
 
   return (
     <div className="p-10 max-w-4xl mx-auto">
@@ -83,12 +137,10 @@ function Explain() {
             <span className="bg-green-200"> officials </span> according to
             <span className="bg-green-200"> verified </span> sources.
           </p>
-          <p className="text-sm text-gray-500 mt-4">
-            Red highlights indicate words contributing to fake prediction.
-          </p>
+
           <button
-            onClick={() => setMode("shap")}
-            className="mt-6 bg-purple-600 text-white px-6 py-2 rounded-xl shadow"
+            onClick={loadShap}
+            className="mt-6 bg-purple-600 text-white px-6 py-2 rounded-xl"
           >
             Generate SHAP Explanation
           </button>
@@ -98,17 +150,20 @@ function Explain() {
           <div className="bg-gray-100 p-6 rounded-xl">
             <p className="font-semibold mb-2">SHAP Feature Contributions</p>
             <ul className="space-y-2">
-              <li className="text-red-600">secret: +0.21</li>
-              <li className="text-red-600">breaking: +0.18</li>
-              <li className="text-green-600">verified: -0.15</li>
+              {shapData.map((item, idx) => (
+                <li
+                  key={idx}
+                  className={item.value > 0 ? "text-red-600" : "text-green-600"}
+                >
+                  {item.token}: {item.value}
+                </li>
+              ))}
             </ul>
           </div>
-          <p className="text-sm text-gray-500 mt-4">
-            SHAP shows the magnitude and direction of each word's contribution.
-          </p>
+
           <button
             onClick={() => setMode("lime")}
-            className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-xl shadow"
+            className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-xl"
           >
             Back to LIME Explanation
           </button>
@@ -117,7 +172,6 @@ function Explain() {
     </div>
   );
 }
-
 function Metrics() {
   return (
     <div className="p-10">
