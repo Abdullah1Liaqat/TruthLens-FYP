@@ -173,6 +173,16 @@ function Explain() {
   );
 }
 function Metrics() {
+  const [metrics, setMetrics] = useState(null);
+
+  React.useEffect(() => {
+    fetch("http://localhost:5000/api/metrics")
+      .then(res => res.json())
+      .then(setMetrics);
+  }, []);
+
+  if (!metrics) return <p className="p-10">Loading metrics...</p>;
+
   return (
     <div className="p-10">
       <h2 className="text-3xl font-bold mb-6">Evaluation Dashboard</h2>
@@ -180,43 +190,44 @@ function Metrics() {
       <div className="grid grid-cols-3 gap-6 mb-10">
         <div className="bg-white shadow rounded-2xl p-6">
           <p className="text-gray-500">Overall Accuracy</p>
-          <p className="text-3xl font-bold">72%</p>
+          <p className="text-3xl font-bold">{metrics.accuracy * 100}%</p>
         </div>
+
         <div className="bg-white shadow rounded-2xl p-6">
           <p className="text-gray-500">Precision</p>
-          <p className="text-3xl font-bold">0.74</p>
+          <p className="text-3xl font-bold">{metrics.precision}</p>
         </div>
+
         <div className="bg-white shadow rounded-2xl p-6">
           <p className="text-gray-500">Recall</p>
-          <p className="text-3xl font-bold">0.70</p>
+          <p className="text-3xl font-bold">{metrics.recall}</p>
         </div>
-      </div>
-
-      <div className="bg-white shadow rounded-2xl p-8">
-        <h3 className="text-xl font-semibold mb-4">Training Performance</h3>
-        <div className="h-48 flex items-center justify-center border rounded-xl text-gray-400">
-          Accuracy / Loss Graph (Epoch vs Performance)
-        </div>
-        <p className="text-sm text-gray-500 mt-4">
-          This graph illustrates how the model's accuracy improves and loss decreases during training,
-          indicating convergence and generalization behavior.
-        </p>
       </div>
     </div>
   );
 }
 
 function About() {
+  const [info, setInfo] = useState(null);
+
+  React.useEffect(() => {
+    fetch("http://localhost:5000/api/about")
+      .then(res => res.json())
+      .then(setInfo);
+  }, []);
+
+  if (!info) return <p className="p-10">Loading...</p>;
+
   return (
     <div className="p-10 max-w-3xl">
       <h2 className="text-3xl font-bold mb-4">About TruthLens</h2>
-      <p className="text-gray-600">
-        TruthLens is a Final Year Project focused on detecting and explaining misinformation using transformer‑based deep learning models.
-      </p>
-      <p className="mt-4 text-gray-600">Supervisor: ____________________</p>
+      <p className="text-gray-600">{info.description}</p>
+      <p className="mt-4 text-gray-600">Model: {info.model}</p>
+      <p className="mt-2 text-gray-600">Academic Project</p>
     </div>
   );
 }
+
 
 export default function App() {
   return (
