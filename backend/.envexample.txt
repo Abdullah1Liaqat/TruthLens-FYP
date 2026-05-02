@@ -1,0 +1,3 @@
+NEWS_API_KEY=generated_news_key
+FACT_CHECK_KEY=generated_fact_check_key
+JWT_SECRET_KEY=truthlens-secret-society
